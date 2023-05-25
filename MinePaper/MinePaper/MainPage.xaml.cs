@@ -3,6 +3,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.System.UserProfile;
 using Windows.Storage;
+using MinePaper.Classes;
 
 namespace MinePaper
 {
@@ -18,14 +19,7 @@ namespace MinePaper
 
         private async void Event_TryMeClicked(object sender, RoutedEventArgs e)
         {
-            if (UserProfilePersonalizationSettings.IsSupported())
-            {
-                string filename = "HD_Wallpapers_1080p_Widescreen.jpeg";
-                var localFolder = ApplicationData.Current.LocalFolder;
-                StorageFile file = await ApplicationData.Current.LocalFolder.GetFileAsync(filename);
-                UserProfilePersonalizationSettings settings = UserProfilePersonalizationSettings.Current;
-                await settings.TrySetWallpaperImageAsync(file);
-            }
+            Utilities.SetLockScreenBackground("HD_Wallpapers_1080p_Widescreen.jpeg");
         }
     }
 }
