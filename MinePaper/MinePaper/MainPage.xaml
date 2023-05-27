@@ -19,20 +19,17 @@
                 <StackPanel x:Name="stkDesktopSection">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left">Auto rotate desktop background:</TextBlock>
-                        <ToggleSwitch></ToggleSwitch>
+                        <ToggleSwitch x:Name="tglDesktopAutoRotate" Toggled="tglDesktopAutoRotate_Toggled"></ToggleSwitch>
                     </StackPanel>
                     <StackPanel x:Name="stkDesktopAutoRotateSection">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left">Rotate background every:</TextBlock>
-                            <ComboBox>
-                                <x:String>30 Minutes</x:String>
-                                <x:String>1 Hour</x:String>
-                                <x:String>2 Hours</x:String>
-                                <x:String>5 Hours</x:String>
-                                <x:String>12 Hours</x:String>
-                                <x:String>1 Day</x:String>
-                            </ComboBox>
+                            <ComboBox ItemsSource="{x:Bind _rotateOptions}" SelectionChanged="cboDesktopRotateFrequency_SelectionChanged" 
+                                x:Name="cboDesktopRotateFrequency"></ComboBox>
                         </StackPanel>
+                    </StackPanel>
+                    <StackPanel x:Name="stkDesktopManualSection">
+                        <TextBlock>Manual Section</TextBlock>
                     </StackPanel>
                 </StackPanel>
                 <StackPanel x:Name="stkLockScreenSection" Visibility="Collapsed">
