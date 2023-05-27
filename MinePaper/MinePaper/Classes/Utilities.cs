@@ -59,11 +59,15 @@ namespace MinePaper.Classes
         { 
             Settings output = new Settings
             {
-                IsAutoRotating = false,
-                CurrentImage = null,
+                IsDesktopRotating = false,
+                IsLockScreenRotating = false,
+                CurrentDesktopImage = null,
+                CurrentLockScreenImage = null,
                 AvailableImages = new List<string> { },
-                AutoRotateMinutes = 30,
-                LastRotatedTime = DateTime.MinValue,
+                DesktopAutoRotateMinutes = 30,
+                LockScreenAutoRotateMinutes = 30,
+                DesktopLastRotatedTime = DateTime.MinValue,
+                LockScreenLastRotatedTime = DateTime.MinValue,
                 LastImageSyncedTime = DateTime.MinValue
             };
             string filename = ApplicationData.Current.LocalFolder.Path + "/" + Constants.CONFIG_FILE_NAME;

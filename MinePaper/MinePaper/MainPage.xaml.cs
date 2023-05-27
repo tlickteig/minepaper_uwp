@@ -16,23 +16,21 @@ namespace MinePaper
         public MainPage()
         {
             this.InitializeComponent();
+            vwMainNavigationView.SelectedItem = vwiDesktopItem;
         }
 
-        private async void Event_TryMeClicked(object sender, RoutedEventArgs e)
+        private void vwMainNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            /*Utilities.WriteSettingsToDisk(new Settings
+            if (sender.SelectedItem == vwiLockScreenItem)
             {
-                IsAutoRotating = false,
-                CurrentImage = "fileone.jpeg",
-                AvailableImages = new List<string>
-                { 
-                    "fileone.jpeg"
-                },
-                AutoRotateMinutes = 30,
-                LastRotatedTime = DateTime.Now,
-                LastImageSyncedTime = DateTime.MinValue
-            });*/
-            var settings = Utilities.ReadSettingsFromDisk();
+                stkDesktopSection.Visibility = Visibility.Collapsed;
+                stkLockScreenSection.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                stkDesktopSection.Visibility = Visibility.Visible;
+                stkLockScreenSection.Visibility = Visibility.Collapsed;
+            }
         }
     }
 }

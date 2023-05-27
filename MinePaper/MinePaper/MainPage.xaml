@@ -4,11 +4,41 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MinePaper"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:ui="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <Button Click="Event_TryMeClicked">Try me!</Button>
+        <NavigationView PaneDisplayMode="Top" IsBackEnabled="False" SelectionChanged="vwMainNavigationView_SelectionChanged"
+            IsBackButtonVisible="Collapsed" IsSettingsVisible="False" x:Name="vwMainNavigationView">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Desktop" x:Name="vwiDesktopItem" />
+                <NavigationViewItem Content="Lock Screen" x:Name="vwiLockScreenItem" />
+            </NavigationView.MenuItems>
+            <StackPanel Padding="10">
+                <StackPanel x:Name="stkDesktopSection">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left">Auto rotate desktop background:</TextBlock>
+                        <ToggleSwitch></ToggleSwitch>
+                    </StackPanel>
+                    <StackPanel x:Name="stkDesktopAutoRotateSection">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left">Rotate background every:</TextBlock>
+                            <ComboBox>
+                                <x:String>30 Minutes</x:String>
+                                <x:String>1 Hour</x:String>
+                                <x:String>2 Hours</x:String>
+                                <x:String>5 Hours</x:String>
+                                <x:String>12 Hours</x:String>
+                                <x:String>1 Day</x:String>
+                            </ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel x:Name="stkLockScreenSection" Visibility="Collapsed">
+                    <TextBlock Text="This is the lock screen section" />
+                </StackPanel>
+            </StackPanel>
+        </NavigationView>
     </Grid>
 </Page>
