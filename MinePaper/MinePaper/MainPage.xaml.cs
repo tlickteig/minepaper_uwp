@@ -22,6 +22,17 @@ namespace MinePaper
         }
     }
 
+    public class WallpaperOption
+    { 
+        public string ImageName { get; set; }
+
+        public string FullImagePath { get 
+            {
+                return ApplicationData.Current.LocalFolder.Path + "/images/" + ImageName;
+            } 
+        }
+    }
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -39,6 +50,8 @@ namespace MinePaper
             new RotateOption() { Option = "1 Day", Value = 1440 },
         };
 
+        public List<WallpaperOption> _availableImages = new List<WallpaperOption>();
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -49,12 +62,10 @@ namespace MinePaper
             if (_settings.IsDesktopRotating) 
             { 
                 stkDesktopAutoRotateSection.Visibility = Visibility.Visible;
-                stkDesktopManualSection.Visibility = Visibility.Collapsed;
             }
             else 
             {
                 stkDesktopAutoRotateSection.Visibility = Visibility.Collapsed;
-                stkDesktopManualSection.Visibility = Visibility.Visible;
             }
 
             cboDesktopRotateFrequency.SelectedItem = _rotateOptions[0];
@@ -65,7 +76,21 @@ namespace MinePaper
             }
             catch (InvalidOperationException ex)
             { 
-                // Eat the exception
+                // Eat the exception because it can happen if there is a bad value in the settings file
+            }
+
+            try
+            {
+                List<string> imageNames = Utilities.ScanImagesDirectory();
+                foreach (string imageName in imageNames) 
+                {
+                    _availableImages.Add(new WallpaperOption() { ImageName = imageName });
+                }
+                lstDesktopWallpaperList.ItemsSource = _availableImages;
+            }
+            catch (Exception ex) 
+            {
+                throw ex;
             }
         }
 
@@ -92,12 +117,10 @@ namespace MinePaper
             if (toggleSwitch.IsOn)
             {
                 stkDesktopAutoRotateSection.Visibility = Visibility.Visible;
-                stkDesktopManualSection.Visibility = Visibility.Collapsed;
             }
             else
             {
                 stkDesktopAutoRotateSection.Visibility = Visibility.Collapsed;
-                stkDesktopManualSection.Visibility = Visibility.Visible;
             }
         }
 
@@ -106,6 +129,11 @@ namespace MinePaper
             RotateOption selectedItem = (RotateOption)cboDesktopRotateFrequency.SelectedItem;
             _settings.DesktopAutoRotateMinutes = selectedItem.Value;
             Utilities.WriteSettingsToDisk(_settings);
+        }
+
+        private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            lstDesktopWallpaperList.Height = ((Frame)Window.Current.Content).ActualHeight - 150;
         }
     }
 }

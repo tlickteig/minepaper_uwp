@@ -6,8 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:ui="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    SizeChanged="Page_SizeChanged">
     <Grid>
         <NavigationView PaneDisplayMode="Top" IsBackEnabled="False" SelectionChanged="vwMainNavigationView_SelectionChanged"
             IsBackButtonVisible="Collapsed" IsSettingsVisible="False" x:Name="vwMainNavigationView">
@@ -19,17 +19,25 @@
                 <StackPanel x:Name="stkDesktopSection">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left">Auto rotate desktop background:</TextBlock>
-                        <ToggleSwitch x:Name="tglDesktopAutoRotate" Toggled="tglDesktopAutoRotate_Toggled"></ToggleSwitch>
-                    </StackPanel>
-                    <StackPanel x:Name="stkDesktopAutoRotateSection">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left">Rotate background every:</TextBlock>
-                            <ComboBox ItemsSource="{x:Bind _rotateOptions}" SelectionChanged="cboDesktopRotateFrequency_SelectionChanged" 
-                                x:Name="cboDesktopRotateFrequency"></ComboBox>
+                        <ToggleSwitch x:Name="tglDesktopAutoRotate" Toggled="tglDesktopAutoRotate_Toggled" OffContent="" OnContent="" Margin="0, 0, -110, 0"></ToggleSwitch>
+                        <StackPanel x:Name="stkDesktopAutoRotateSection">
+                            <StackPanel Orientation="Horizontal" Height="40" Spacing="10">
+                                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left">Rotate background every:</TextBlock>
+                                <ComboBox ItemsSource="{x:Bind _rotateOptions}" SelectionChanged="cboDesktopRotateFrequency_SelectionChanged" 
+                                x:Name="cboDesktopRotateFrequency" VerticalAlignment="Center"></ComboBox>
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
-                    <StackPanel x:Name="stkDesktopManualSection">
-                        <TextBlock>Manual Section</TextBlock>
+                    <StackPanel x:Name="stkDesktopManualSection" Spacing="10" Margin="0, 10, 0, 0">
+                        <ScrollContentPresenter>
+                            <ListView x:Name="lstDesktopWallpaperList" Width="200" Height="100" HorizontalAlignment="Left">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Image Height="90" Width="160" Margin="5, 5, 5, 5" Source="{Binding FullImagePath}" HorizontalAlignment="Left"/>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </ScrollContentPresenter>
                     </StackPanel>
                 </StackPanel>
                 <StackPanel x:Name="stkLockScreenSection" Visibility="Collapsed">
