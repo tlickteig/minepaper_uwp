@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Diagnostics;
+using Windows.Foundation.Diagnostics;
+using Windows.UI.Xaml.Controls;
 
 namespace MinePaper.Classes
 {
@@ -88,7 +91,7 @@ namespace MinePaper.Classes
             return output;
         }
 
-        public static async void SyncImagesWithServer()
+        public static async Task SyncImagesWithServer(Action OnCompleted = null)
         {
             try
             {
@@ -150,6 +153,11 @@ namespace MinePaper.Classes
                     }
                     settings.AvailableImages = tempLocalFileList;
                     WriteSettingsToDisk(settings);
+                }
+
+                if (OnCompleted != null)
+                {
+                    OnCompleted();
                 }
             }
             catch (Exception ex) 
@@ -230,6 +238,31 @@ namespace MinePaper.Classes
             {
                 throw ex;
             }
+        }
+
+        public static async void LogError(Exception ex)
+        {
+            // Initialization
+            FileLoggingSession fileLoggingSession = new FileLoggingSession("session");
+            var loggingChannel = new LoggingChannel("channel", new LoggingChannelOptions());
+            fileLoggingSession.AddLoggingChannel(loggingChannel);
+
+            // Log messages
+            loggingChannel.LogMessage(ex.Message, LoggingLevel.Error);
+
+            // When file is needed
+            var file = await fileLoggingSession.CloseAndSaveToFileAsync();
+        }
+
+        public static async void ShowSimpleOkDialogAsync(string message) 
+        {
+            ContentDialog dialog = new ContentDialog()
+            {
+                Title = "Error",
+                Content = "An error has occurred. Please try again later.",
+                CloseButtonText = "Ok"
+            };
+            await dialog.ShowAsync();
         }
     }
 }

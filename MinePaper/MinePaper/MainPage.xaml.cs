@@ -7,6 +7,11 @@ using MinePaper.Classes;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using Windows.UI.Xaml.Media;
+using Windows.Storage.Streams;
+using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Popups;
+using System.Threading.Tasks;
 
 namespace MinePaper
 {
@@ -82,15 +87,17 @@ namespace MinePaper
             try
             {
                 List<string> imageNames = Utilities.ScanImagesDirectory();
-                foreach (string imageName in imageNames) 
+                if (imageNames?.Count == 0)
                 {
-                    _availableImages.Add(new WallpaperOption() { ImageName = imageName });
+                    Utilities.SyncImagesWithServer(RefreshImageList);
                 }
-                lstDesktopWallpaperList.ItemsSource = _availableImages;
+
+                RefreshImageList();
             }
             catch (Exception ex) 
             {
-                throw ex;
+                Utilities.LogError(ex);
+                Utilities.ShowSimpleOkDialogAsync(ex.Message);
             }
         }
 
@@ -131,9 +138,50 @@ namespace MinePaper
             Utilities.WriteSettingsToDisk(_settings);
         }
 
+        private void lstDesktopWallpaperList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ListView listView = (ListView)sender;
+            WallpaperOption option = (WallpaperOption)listView.SelectedItem;
+            SelectDesktopImage(option.ImageName);
+        }
+
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            lstDesktopWallpaperList.Height = ((Frame)Window.Current.Content).ActualHeight - 150;
+            double height = ((Frame)Window.Current.Content).ActualHeight - 150;
+            double width = ((Frame)Window.Current.Content).ActualWidth - 150;
+
+            lstDesktopWallpaperList.Height = height;
+            double imageFrameWidth = (height - 50) * (16.0 / 9.0);
+            if (imageFrameWidth > width - 100)
+            { 
+                imageFrameWidth = width - 100;
+            }
+
+            frmMainImage.Height = height - 50;
+            frmMainImage.Width = imageFrameWidth;
+        }
+
+        private void SelectDesktopImage(string filename)
+        {
+            string fullImagePath = ApplicationData.Current.LocalFolder.Path + "/images/" + filename;
+            BitmapImage image = new BitmapImage(new Uri(fullImagePath));
+            imgMainImage.Source = image;
+            txtSelectImage.Visibility = Visibility.Collapsed;
+            btnSetWallpaper.IsEnabled = true;
+        }
+
+        private void RefreshImageList()
+        {
+            List<string> imageNames = Utilities.ScanImagesDirectory();
+            foreach (string imageName in imageNames)
+            {
+                _availableImages.Add(new WallpaperOption() { ImageName = imageName });
+            }
+
+            foreach (WallpaperOption image in _availableImages) 
+            { 
+                lstDesktopWallpaperList.Items.Add(image);
+            }
         }
     }
 }
