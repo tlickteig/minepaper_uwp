@@ -240,18 +240,26 @@ namespace MinePaper.Classes
             }
         }
 
-        public static async void LogError(Exception ex)
+
+        // Copied from https://stackoverflow.com/questions/21307789/how-to-save-exception-in-txt-file
+        public static void LogError(Exception ex)
         {
-            // Initialization
-            FileLoggingSession fileLoggingSession = new FileLoggingSession("session");
-            var loggingChannel = new LoggingChannel("channel", new LoggingChannelOptions());
-            fileLoggingSession.AddLoggingChannel(loggingChannel);
+            string filePath = ApplicationData.Current.LocalFolder.Path + "\\errors.log";
+            using (StreamWriter writer = new StreamWriter(filePath, true))
+            {
+                writer.WriteLine("-----------------------------------------------------------------------------");
+                writer.WriteLine("Date : " + DateTime.Now.ToString());
+                writer.WriteLine();
 
-            // Log messages
-            loggingChannel.LogMessage(ex.Message, LoggingLevel.Error);
+                while (ex != null)
+                {
+                    writer.WriteLine(ex.GetType().FullName);
+                    writer.WriteLine("Message : " + ex.Message);
+                    writer.WriteLine("StackTrace : " + ex.StackTrace);
 
-            // When file is needed
-            var file = await fileLoggingSession.CloseAndSaveToFileAsync();
+                    ex = ex.InnerException;
+                }
+            }
         }
 
         public static async void ShowSimpleOkDialogAsync(string message) 

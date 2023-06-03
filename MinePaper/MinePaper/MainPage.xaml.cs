@@ -73,11 +73,24 @@ namespace MinePaper
                 stkDesktopAutoRotateSection.Visibility = Visibility.Collapsed;
             }
 
+            tglLockScreenAutoRotate.IsOn = _settings.IsLockScreenRotating;
+            if (_settings.IsLockScreenRotating)
+            {
+                stkLockScreenAutoRotateSection.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                stkLockScreenAutoRotateSection.Visibility = Visibility.Collapsed;
+            }
+
             cboDesktopRotateFrequency.SelectedItem = _rotateOptions[0];
             try
             {
                 RotateOption currentDesktopRotateFrequency = _rotateOptions.First(x => x.Value == _settings.DesktopAutoRotateMinutes);
                 cboDesktopRotateFrequency.SelectedItem = currentDesktopRotateFrequency;
+
+                RotateOption currentLockScreenRotateFrequency = _rotateOptions.First(x => x.Value == _settings.LockScreenAutoRotateMinutes);
+                cboLockScreenRotateFrequency.SelectedItem = currentLockScreenRotateFrequency;
             }
             catch (InvalidOperationException ex)
             { 
@@ -115,6 +128,7 @@ namespace MinePaper
             }
         }
 
+        #region Desktop event handlers
         private void tglDesktopAutoRotate_Toggled(object sender, RoutedEventArgs e)
         {
             ToggleSwitch toggleSwitch = (ToggleSwitch)sender;
@@ -145,20 +159,103 @@ namespace MinePaper
             SelectDesktopImage(option.ImageName);
         }
 
+        private void btnSetDesktopWallpaper_Click(object sender, RoutedEventArgs e)
+        {
+            if (UserProfilePersonalizationSettings.IsSupported())
+            {
+                var option = lstDesktopWallpaperList.SelectedItem as WallpaperOption;
+                try
+                {
+                    Utilities.SetDesktopBackground("images\\" + option.ImageName);
+                }
+                catch (Exception ex)
+                {
+                    Utilities.LogError(ex);
+                }
+            }
+            else
+            {
+                Utilities.ShowSimpleOkDialogAsync("Profile personalization is not enabled. Please try again later.");
+            }
+        }
+        #endregion
+
+        #region Lock Screen event handlers
+        private void tglLockScreenAutoRotate_Toggled(object sender, RoutedEventArgs e)
+        {
+            ToggleSwitch toggleSwitch = (ToggleSwitch)sender;
+            _settings.IsLockScreenRotating = toggleSwitch.IsOn;
+            Utilities.WriteSettingsToDisk(_settings);
+
+            if (toggleSwitch.IsOn)
+            {
+                stkLockScreenAutoRotateSection.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                stkLockScreenAutoRotateSection.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void cboLockScreenRotateFrequency_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            RotateOption selectedItem = (RotateOption)cboLockScreenRotateFrequency.SelectedItem;
+            _settings.LockScreenAutoRotateMinutes = selectedItem.Value;
+            Utilities.WriteSettingsToDisk(_settings);
+        }
+
+        private void lstLockScreenWallpaperList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ListView listView = (ListView)sender;
+            WallpaperOption option = (WallpaperOption)listView.SelectedItem;
+            SelectLockScreenImage(option.ImageName);
+        }
+
+        private void btnSetLockScreenWallpaper_Click(object sender, RoutedEventArgs e)
+        {
+            if (UserProfilePersonalizationSettings.IsSupported())
+            {
+                var option = lstLockScreenWallpaperList.SelectedItem as WallpaperOption;
+                try
+                {
+                    Utilities.SetLockScreenBackground("images\\" + option.ImageName);
+                }
+                catch (Exception ex)
+                {
+                    Utilities.LogError(ex);
+                }
+            }
+            else
+            {
+                Utilities.ShowSimpleOkDialogAsync("Profile personalization is not enabled. Please try again later.");
+            }
+        }
+        #endregion
+
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             double height = ((Frame)Window.Current.Content).ActualHeight - 150;
             double width = ((Frame)Window.Current.Content).ActualWidth - 150;
 
             lstDesktopWallpaperList.Height = height;
-            double imageFrameWidth = (height - 50) * (16.0 / 9.0);
-            if (imageFrameWidth > width - 100)
-            { 
-                imageFrameWidth = width - 100;
+            lstLockScreenWallpaperList.Height = height;
+
+            double imageFrameWidth = width - 100;
+            double imageFrameHeight = height - 50;
+            if (height > (width * 9.0 / 16.0))
+            {
+                imageFrameHeight = width * (9.0 / 16.0) - 100;
+            }
+            else if ((width * 9.0 / 16.0) > height)
+            {
+                imageFrameWidth = height * (16.0 / 9.0) - 50;
             }
 
-            frmMainImage.Height = height - 50;
+            frmMainImage.Height = imageFrameHeight;
             frmMainImage.Width = imageFrameWidth;
+
+            frmLockScreenImage.Height = imageFrameHeight;
+            frmLockScreenImage.Width = imageFrameWidth;
         }
 
         private void SelectDesktopImage(string filename)
@@ -166,8 +263,17 @@ namespace MinePaper
             string fullImagePath = ApplicationData.Current.LocalFolder.Path + "/images/" + filename;
             BitmapImage image = new BitmapImage(new Uri(fullImagePath));
             imgMainImage.Source = image;
-            txtSelectImage.Visibility = Visibility.Collapsed;
+            txtSelectDesktopImage.Visibility = Visibility.Collapsed;
             btnSetWallpaper.IsEnabled = true;
+        }
+
+        private void SelectLockScreenImage(string filename)
+        {
+            string fullImagePath = ApplicationData.Current.LocalFolder.Path + "/images/" + filename;
+            BitmapImage image = new BitmapImage(new Uri(fullImagePath));
+            imgLockScreenImage.Source = image;
+            txtSelectLockScreenImage.Visibility = Visibility.Collapsed;
+            btnSetLockScreen.IsEnabled = true;
         }
 
         private void RefreshImageList()
@@ -181,6 +287,7 @@ namespace MinePaper
             foreach (WallpaperOption image in _availableImages) 
             { 
                 lstDesktopWallpaperList.Items.Add(image);
+                lstLockScreenWallpaperList.Items.Add(image);
             }
         }
     }
