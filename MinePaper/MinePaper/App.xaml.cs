@@ -145,6 +145,10 @@ namespace MinePaper
                     settings.LockScreenLastRotatedTime = DateTime.Now;
                     Utilities.LogData("Done changing lock screen wallpaper");
                 }
+                else
+                {
+                    Utilities.LogData("Not changing lock screen wallpaper");
+                }
 
                 Utilities.WriteSettingsToDisk(settings);
                 Utilities.LogData("Ending background thread");
