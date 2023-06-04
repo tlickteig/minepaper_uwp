@@ -5,7 +5,8 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:iot="http://schemas.microsoft.com/appx/manifest/iot/windows10"
-  IgnorableNamespaces="uap mp iot">
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap mp iot rescap">
 
   <Identity
     Name="49f0248a-ef4d-4b7e-a1b4-aca18ad1f35c"
@@ -46,5 +47,6 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
+    <!--<rescap:Capability Name="extendedBackgroundTaskTime"/>-->
   </Capabilities>
 </Package>

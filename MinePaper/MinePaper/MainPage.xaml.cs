@@ -60,30 +60,40 @@ namespace MinePaper
         public MainPage()
         {
             this.InitializeComponent();
-            vwMainNavigationView.SelectedItem = vwiDesktopItem;
-            _settings = Utilities.ReadSettingsFromDisk();
+            try
+            {
+                Utilities.RegisterBackgroundTaskIfNotRegisteredAlready();
+                vwMainNavigationView.SelectedItem = vwiDesktopItem;
+                _settings = Utilities.ReadSettingsFromDisk();
 
-            tglDesktopAutoRotate.IsOn = _settings.IsDesktopRotating;
-            if (_settings.IsDesktopRotating) 
+                tglDesktopAutoRotate.IsOn = _settings.IsDesktopRotating;
+                if (_settings.IsDesktopRotating)
+                {
+                    stkDesktopAutoRotateSection.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    stkDesktopAutoRotateSection.Visibility = Visibility.Collapsed;
+                }
+
+                tglLockScreenAutoRotate.IsOn = _settings.IsLockScreenRotating;
+                if (_settings.IsLockScreenRotating)
+                {
+                    stkLockScreenAutoRotateSection.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    stkLockScreenAutoRotateSection.Visibility = Visibility.Collapsed;
+                }
+
+                cboDesktopRotateFrequency.SelectedItem = _rotateOptions[0];
+            }
+            catch (Exception ex)
             { 
-                stkDesktopAutoRotateSection.Visibility = Visibility.Visible;
-            }
-            else 
-            {
-                stkDesktopAutoRotateSection.Visibility = Visibility.Collapsed;
+                Utilities.LogError(ex);
+                Utilities.ShowSimpleErrorDialogAsync();
             }
 
-            tglLockScreenAutoRotate.IsOn = _settings.IsLockScreenRotating;
-            if (_settings.IsLockScreenRotating)
-            {
-                stkLockScreenAutoRotateSection.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                stkLockScreenAutoRotateSection.Visibility = Visibility.Collapsed;
-            }
-
-            cboDesktopRotateFrequency.SelectedItem = _rotateOptions[0];
             try
             {
                 RotateOption currentDesktopRotateFrequency = _rotateOptions.First(x => x.Value == _settings.DesktopAutoRotateMinutes);
@@ -110,7 +120,7 @@ namespace MinePaper
             catch (Exception ex) 
             {
                 Utilities.LogError(ex);
-                Utilities.ShowSimpleOkDialogAsync(ex.Message);
+                Utilities.ShowSimpleErrorDialogAsync();
             }
         }
 
@@ -175,7 +185,7 @@ namespace MinePaper
             }
             else
             {
-                Utilities.ShowSimpleOkDialogAsync("Profile personalization is not enabled. Please try again later.");
+                Utilities.ShowSimpleErrorDialogAsync("Profile personalization is not enabled. Please try again later.");
             }
         }
         #endregion
@@ -227,7 +237,7 @@ namespace MinePaper
             }
             else
             {
-                Utilities.ShowSimpleOkDialogAsync("Profile personalization is not enabled. Please try again later.");
+                Utilities.ShowSimpleErrorDialogAsync("Profile personalization is not enabled. Please try again later.");
             }
         }
         #endregion

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Diagnostics;
 using Windows.Foundation.Diagnostics;
 using Windows.UI.Xaml.Controls;
+using Windows.ApplicationModel.Background;
 
 namespace MinePaper.Classes
 {
@@ -124,12 +125,14 @@ namespace MinePaper.Classes
                         if (!settings.AvailableImages.Contains(filename))
                         {
                             int tries = 0;
-                            while (true)
+                            int imagesDownloaded = 0;
+                            while (imagesDownloaded > 25)
                             {
                                 try
                                 {
                                     DownloadImageFromServer(filename);
                                     tempLocalFileList.Add(filename);
+                                    imagesDownloaded++;
                                     break;
                                 }
                                 catch (WebException e)
@@ -262,15 +265,34 @@ namespace MinePaper.Classes
             }
         }
 
-        public static async void ShowSimpleOkDialogAsync(string message) 
+        public static async void ShowSimpleErrorDialogAsync(string message = "An error has occurred. Please try again later.") 
         {
             ContentDialog dialog = new ContentDialog()
             {
                 Title = "Error",
-                Content = "An error has occurred. Please try again later.",
+                Content = message,
                 CloseButtonText = "Ok"
             };
             await dialog.ShowAsync();
+        }
+
+        public static async void RegisterBackgroundTaskIfNotRegisteredAlready()
+        {
+            var request = await BackgroundExecutionManager.RequestAccessAsync();
+            string taskName = "MinePaperBackgroundTask";
+            foreach (var task in BackgroundTaskRegistration.AllTasks)
+            {
+                if (task.Value.Name == taskName)
+                {
+                    task.Value.Unregister(true);
+                    break;
+                }
+            }
+
+            BackgroundTaskBuilder builder = new BackgroundTaskBuilder();
+            builder.Name = taskName;
+            builder.SetTrigger(new TimeTrigger(15, false));
+            BackgroundTaskRegistration register = builder.Register();
         }
     }
 }

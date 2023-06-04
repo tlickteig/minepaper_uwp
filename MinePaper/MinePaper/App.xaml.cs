@@ -1,10 +1,12 @@
-﻿using System;
+﻿using MinePaper.Classes;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.Background;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -95,6 +97,59 @@ namespace MinePaper
             var deferral = e.SuspendingOperation.GetDeferral();
             //TODO: Save application state and stop any background activity
             deferral.Complete();
+        }
+
+        protected override void OnBackgroundActivated(BackgroundActivatedEventArgs args)
+        {
+            try
+            {
+                Utilities.LogError(new ApplicationException("Hello World!"));
+                int serverSyncIntervalMinutes = 30;
+                Settings settings = Utilities.ReadSettingsFromDisk();
+                int numberOfMinutesSinceLastSync = (DateTime.Now - settings.LastImageSyncedTime).Minutes;
+
+                if (numberOfMinutesSinceLastSync > serverSyncIntervalMinutes)
+                {
+                    //await Utilities.SyncImagesWithServer();
+                    settings.LastImageSyncedTime = DateTime.Now;
+                }
+
+                int numberOfMinutesSinceDesktopRotate = (DateTime.Now - settings.DesktopLastRotatedTime).Minutes;
+                if (numberOfMinutesSinceDesktopRotate > settings.DesktopAutoRotateMinutes) 
+                {
+                    Random random = new Random();
+                    int index = random.Next(settings.AvailableImages.Count);
+                    while (settings.CurrentDesktopImage == settings.AvailableImages[index])
+                    {
+                        index = random.Next(settings.AvailableImages.Count);
+                    }
+
+                    Utilities.SetDesktopBackground("images\\" + settings.AvailableImages[index]);
+                    settings.CurrentDesktopImage = settings.AvailableImages[index];
+                    settings.DesktopLastRotatedTime = DateTime.Now;
+                }
+
+                int numberOfMinutesSinceLockScreenRotate = (DateTime.Now - settings.LockScreenLastRotatedTime).Minutes;
+                if (numberOfMinutesSinceLockScreenRotate > settings.LockScreenAutoRotateMinutes)
+                {
+                    Random random = new Random();
+                    int index = random.Next(settings.AvailableImages.Count);
+                    while (settings.CurrentLockScreenImage == settings.AvailableImages[index])
+                    {
+                        index = random.Next(settings.AvailableImages.Count);
+                    }
+
+                    Utilities.SetLockScreenBackground("images\\" + settings.AvailableImages[index]);
+                    settings.CurrentLockScreenImage = settings.AvailableImages[index];
+                    settings.LockScreenLastRotatedTime = DateTime.Now;
+                }
+
+                Utilities.WriteSettingsToDisk(settings);
+            }
+            catch (Exception ex)
+            {
+                Utilities.LogError(ex);
+            }
         }
     }
 }
