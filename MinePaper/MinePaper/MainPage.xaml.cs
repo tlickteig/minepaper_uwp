@@ -109,13 +109,7 @@ namespace MinePaper
 
             try
             {
-                List<string> imageNames = Utilities.ScanImagesDirectory();
-                if (imageNames?.Count == 0)
-                {
-                    Utilities.SyncImagesWithServer(RefreshImageList);
-                }
-
-                RefreshImageList();
+                Utilities.SyncImagesWithServer(RefreshImageList);
             }
             catch (Exception ex) 
             {

@@ -103,19 +103,9 @@ namespace MinePaper
         {
             try
             {
-                Utilities.LogError(new ApplicationException("Hello World!"));
-                int serverSyncIntervalMinutes = 30;
                 Settings settings = Utilities.ReadSettingsFromDisk();
-                int numberOfMinutesSinceLastSync = (DateTime.Now - settings.LastImageSyncedTime).Minutes;
-
-                if (numberOfMinutesSinceLastSync > serverSyncIntervalMinutes)
-                {
-                    //await Utilities.SyncImagesWithServer();
-                    settings.LastImageSyncedTime = DateTime.Now;
-                }
-
                 int numberOfMinutesSinceDesktopRotate = (DateTime.Now - settings.DesktopLastRotatedTime).Minutes;
-                if (numberOfMinutesSinceDesktopRotate > settings.DesktopAutoRotateMinutes) 
+                if (numberOfMinutesSinceDesktopRotate > settings.DesktopAutoRotateMinutes && settings.IsDesktopRotating) 
                 {
                     Random random = new Random();
                     int index = random.Next(settings.AvailableImages.Count);
@@ -130,7 +120,7 @@ namespace MinePaper
                 }
 
                 int numberOfMinutesSinceLockScreenRotate = (DateTime.Now - settings.LockScreenLastRotatedTime).Minutes;
-                if (numberOfMinutesSinceLockScreenRotate > settings.LockScreenAutoRotateMinutes)
+                if (numberOfMinutesSinceLockScreenRotate > settings.LockScreenAutoRotateMinutes && settings.IsLockScreenRotating)
                 {
                     Random random = new Random();
                     int index = random.Next(settings.AvailableImages.Count);

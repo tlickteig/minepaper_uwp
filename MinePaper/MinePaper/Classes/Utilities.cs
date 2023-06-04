@@ -126,7 +126,7 @@ namespace MinePaper.Classes
                         {
                             int tries = 0;
                             int imagesDownloaded = 0;
-                            while (imagesDownloaded > 25)
+                            while (imagesDownloaded < 25)
                             {
                                 try
                                 {
@@ -226,9 +226,12 @@ namespace MinePaper.Classes
         {
             try
             {
+                var serializerSettings = new JsonSerializerSettings();
+                serializerSettings.MissingMemberHandling = MissingMemberHandling.Ignore;
+
                 HttpClient client = new HttpClient();
                 string response = await client.GetStringAsync(Constants.REMOTE_IMAGE_LIST_ENDPOINT);
-                Dictionary<string, List<string>> jsonResponse = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(response);
+                Dictionary<string, List<string>> jsonResponse = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(response, serializerSettings);
                 List<string> result = new List<string>();
 
                 if (jsonResponse.ContainsKey("files"))
