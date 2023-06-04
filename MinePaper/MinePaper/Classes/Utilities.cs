@@ -268,6 +268,17 @@ namespace MinePaper.Classes
             }
         }
 
+        public static void LogData(string message)
+        {
+            string filePath = ApplicationData.Current.LocalFolder.Path + "\\info.log";
+            using (StreamWriter writer = new StreamWriter(filePath, true))
+            {
+                writer.WriteLine("-----------------------------------------------------------------------------");
+                writer.WriteLine("Date : " + DateTime.Now.ToString());
+                writer.WriteLine("Message : " + message);
+            }
+        }
+
         public static async void ShowSimpleErrorDialogAsync(string message = "An error has occurred. Please try again later.") 
         {
             ContentDialog dialog = new ContentDialog()

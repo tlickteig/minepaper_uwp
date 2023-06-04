@@ -103,12 +103,16 @@ namespace MinePaper
         {
             try
             {
+                Utilities.LogData("Beginning background thread");
                 Settings settings = Utilities.ReadSettingsFromDisk();
+
                 int numberOfMinutesSinceDesktopRotate = (DateTime.Now - settings.DesktopLastRotatedTime).Minutes;
-                if (numberOfMinutesSinceDesktopRotate > settings.DesktopAutoRotateMinutes && settings.IsDesktopRotating) 
+                if (numberOfMinutesSinceDesktopRotate > settings.DesktopAutoRotateMinutes && settings.IsDesktopRotating)
                 {
+                    Utilities.LogData("Changing desktop wallpaper");
                     Random random = new Random();
                     int index = random.Next(settings.AvailableImages.Count);
+
                     while (settings.CurrentDesktopImage == settings.AvailableImages[index])
                     {
                         index = random.Next(settings.AvailableImages.Count);
@@ -117,13 +121,20 @@ namespace MinePaper
                     Utilities.SetDesktopBackground("images\\" + settings.AvailableImages[index]);
                     settings.CurrentDesktopImage = settings.AvailableImages[index];
                     settings.DesktopLastRotatedTime = DateTime.Now;
+                    Utilities.LogData("Done changing desktop wallpaper");
+                }
+                else
+                {
+                    Utilities.LogData("Not changing desktop wallpaper");
                 }
 
                 int numberOfMinutesSinceLockScreenRotate = (DateTime.Now - settings.LockScreenLastRotatedTime).Minutes;
                 if (numberOfMinutesSinceLockScreenRotate > settings.LockScreenAutoRotateMinutes && settings.IsLockScreenRotating)
                 {
+                    Utilities.LogData("Changing lock screen wallpaper");
                     Random random = new Random();
                     int index = random.Next(settings.AvailableImages.Count);
+
                     while (settings.CurrentLockScreenImage == settings.AvailableImages[index])
                     {
                         index = random.Next(settings.AvailableImages.Count);
@@ -132,9 +143,11 @@ namespace MinePaper
                     Utilities.SetLockScreenBackground("images\\" + settings.AvailableImages[index]);
                     settings.CurrentLockScreenImage = settings.AvailableImages[index];
                     settings.LockScreenLastRotatedTime = DateTime.Now;
+                    Utilities.LogData("Done changing lock screen wallpaper");
                 }
 
                 Utilities.WriteSettingsToDisk(settings);
+                Utilities.LogData("Ending background thread");
             }
             catch (Exception ex)
             {
