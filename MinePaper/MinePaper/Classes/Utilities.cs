@@ -126,7 +126,7 @@ namespace MinePaper.Classes
                         {
                             int tries = 0;
                             int imagesDownloaded = 0;
-                            while (imagesDownloaded < 25)
+                            while (imagesDownloaded < 50)
                             {
                                 try
                                 {
