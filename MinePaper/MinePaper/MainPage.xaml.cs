@@ -109,10 +109,31 @@ namespace MinePaper
 
             try
             {
-                Utilities.SyncImagesWithServer(RefreshImageList);
+                stkDownloadingDesktopImages.Visibility = Visibility.Visible;
+                stkDesktopImageSelection.Visibility = Visibility.Collapsed;
+
+                stkDownloadingLockScreenImages.Visibility = Visibility.Visible;
+                stkLockScreenImageSelection.Visibility = Visibility.Collapsed;
+
+                Utilities.SyncImagesWithServer(delegate
+                {
+                    RefreshImageList();
+
+                    stkDownloadingDesktopImages.Visibility = Visibility.Collapsed;
+                    stkDesktopImageSelection.Visibility = Visibility.Visible;
+
+                    stkDownloadingLockScreenImages.Visibility = Visibility.Collapsed;
+                    stkLockScreenImageSelection.Visibility = Visibility.Visible;
+                });
             }
             catch (Exception ex) 
             {
+                stkDownloadingDesktopImages.Visibility = Visibility.Collapsed;
+                stkDesktopImageSelection.Visibility = Visibility.Collapsed;
+
+                stkDownloadingLockScreenImages.Visibility = Visibility.Collapsed;
+                stkLockScreenImageSelection.Visibility = Visibility.Collapsed;
+
                 Utilities.LogError(ex);
                 Utilities.ShowSimpleErrorDialogAsync();
             }

@@ -38,7 +38,11 @@
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
-                        <StackPanel Spacing="0">
+                        <StackPanel Spacing="0" x:Name="stkDownloadingDesktopImages" HorizontalAlignment="Center">
+                            <ProgressRing x:Name="prgDesktopImagesLoading" IsActive="True" HorizontalAlignment="Center" Width="50" Height="50"/>
+                            <TextBlock Foreground="Gray" HorizontalAlignment="Center" FontSize="15">Downloading some images. Just hang on a minute</TextBlock>
+                        </StackPanel>
+                        <StackPanel Spacing="0" x:Name="stkDesktopImageSelection" Visibility="Collapsed">
                             <TextBlock x:Name="txtSelectDesktopImage" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center">Select an image to preview</TextBlock>
                             <Frame CornerRadius="10" x:Name="frmMainImage" Margin="5, 5, 5, 5">
                                 <Image x:Name="imgMainImage" Stretch="UniformToFill"/>
@@ -69,7 +73,11 @@
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
-                        <StackPanel Spacing="0">
+                        <StackPanel Spacing="0" x:Name="stkDownloadingLockScreenImages" HorizontalAlignment="Center">
+                            <ProgressRing x:Name="prgLockScreenImagesLoading" IsActive="True" HorizontalAlignment="Center" Width="50" Height="50"/>
+                            <TextBlock Foreground="Gray" HorizontalAlignment="Center" FontSize="15">Downloading some images. Just hang on a minute</TextBlock>
+                        </StackPanel>
+                        <StackPanel Spacing="0" x:Name="stkLockScreenImageSelection">
                             <TextBlock x:Name="txtSelectLockScreenImage" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center">Select an image to preview</TextBlock>
                             <Frame CornerRadius="10" x:Name="frmLockScreenImage" Margin="5, 5, 5, 5">
                                 <Image x:Name="imgLockScreenImage" Stretch="UniformToFill"/>
