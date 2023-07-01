@@ -191,7 +191,7 @@ namespace MinePaper
                 var option = lstDesktopWallpaperList.SelectedItem as WallpaperOption;
                 try
                 {
-                    Utilities.SetDesktopBackground("images\\" + option.ImageName);
+                    Utilities.SetDesktopBackground(option.ImageName);
                 }
                 catch (Exception ex)
                 {
@@ -243,7 +243,7 @@ namespace MinePaper
                 var option = lstLockScreenWallpaperList.SelectedItem as WallpaperOption;
                 try
                 {
-                    Utilities.SetLockScreenBackground("images\\" + option.ImageName);
+                    Utilities.SetLockScreenBackground(option.ImageName);
                 }
                 catch (Exception ex)
                 {

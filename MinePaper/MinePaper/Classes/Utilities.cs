@@ -12,6 +12,7 @@ using System.Diagnostics;
 using Windows.Foundation.Diagnostics;
 using Windows.UI.Xaml.Controls;
 using Windows.ApplicationModel.Background;
+using Windows.ApplicationModel.Activation;
 
 namespace MinePaper.Classes
 {
@@ -21,9 +22,13 @@ namespace MinePaper.Classes
         {
             try
             {
-                StorageFile file = await ApplicationData.Current.LocalFolder.GetFileAsync(filename);
+                StorageFile file = await ApplicationData.Current.LocalFolder.GetFileAsync("images\\" + filename);
                 UserProfilePersonalizationSettings settings = UserProfilePersonalizationSettings.Current;
                 await settings.TrySetWallpaperImageAsync(file);
+
+                Settings appSettings = ReadSettingsFromDisk();
+                appSettings.CurrentDesktopImage = filename;
+                WriteSettingsToDisk(appSettings);
             }
             catch (Exception ex)
             {
@@ -35,9 +40,13 @@ namespace MinePaper.Classes
         {
             try
             {
-                StorageFile file = await ApplicationData.Current.LocalFolder.GetFileAsync(filename);
+                StorageFile file = await ApplicationData.Current.LocalFolder.GetFileAsync("images\\" + filename);
                 UserProfilePersonalizationSettings settings = UserProfilePersonalizationSettings.Current;
                 await settings.TrySetLockScreenImageAsync(file);
+
+                Settings appSettings = ReadSettingsFromDisk();
+                appSettings.CurrentLockScreenImage = filename;
+                WriteSettingsToDisk(appSettings);
             }
             catch (Exception ex)
             {
@@ -70,8 +79,8 @@ namespace MinePaper.Classes
                 AvailableImages = new List<string> { },
                 DesktopAutoRotateMinutes = 30,
                 LockScreenAutoRotateMinutes = 30,
-                DesktopLastRotatedTime = DateTime.MinValue,
-                LockScreenLastRotatedTime = DateTime.MinValue,
+                DesktopLastRotatedTime = DateTime.Now,
+                LockScreenLastRotatedTime = DateTime.Now,
                 LastImageSyncedTime = DateTime.MinValue
             };
             string filename = ApplicationData.Current.LocalFolder.Path + "/" + Constants.CONFIG_FILE_NAME;
@@ -163,7 +172,9 @@ namespace MinePaper.Classes
                             }
                         }
                     }
-                    settings.AvailableImages = tempLocalFileList;
+
+                    settings.AvailableImages = ScanImagesDirectory();
+                    settings.LastImageSyncedTime = DateTime.Now;
                     WriteSettingsToDisk(settings);
                 }
 
@@ -172,7 +183,7 @@ namespace MinePaper.Classes
                     OnCompleted();
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 throw ex;
             }

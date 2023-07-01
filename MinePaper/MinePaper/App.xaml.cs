@@ -106,58 +106,48 @@ namespace MinePaper
                 Utilities.LogData("Beginning background thread");
                 Settings settings = Utilities.ReadSettingsFromDisk();
 
-                int numberOfMinutesSinceDesktopRotate = (DateTime.Now - settings.DesktopLastRotatedTime).Minutes;
+                int numberOfMinutesSinceDesktopRotate = (int)(DateTime.Now - settings.DesktopLastRotatedTime).TotalMinutes;
                 if (numberOfMinutesSinceDesktopRotate > settings.DesktopAutoRotateMinutes && settings.IsDesktopRotating)
                 {
                     Utilities.LogData("Changing desktop wallpaper");
                     Random random = new Random();
-                    int index = random.Next(settings.AvailableImages.Count - 1);
-
-                    if (index < 0)
-                    {
-                        index = 0;
-                    }
+                    int index = random.Next(settings.AvailableImages.Count);
 
                     while (settings.CurrentDesktopImage == settings.AvailableImages[index])
                     {
                         index = random.Next(settings.AvailableImages.Count);
                     }
 
-                    Utilities.SetDesktopBackground("images\\" + settings.AvailableImages[index]);
+                    Utilities.SetDesktopBackground(settings.AvailableImages[index]);
                     settings.CurrentDesktopImage = settings.AvailableImages[index];
                     settings.DesktopLastRotatedTime = DateTime.Now;
-                    Utilities.LogData("Done changing desktop wallpaper");
+                    Utilities.LogData($"Changed desktop wallpaper to {settings.AvailableImages[index]}");
                 }
                 else
                 {
-                    Utilities.LogData("Not changing desktop wallpaper");
+                    Utilities.LogData($"Not changing desktop wallpaper - minute difference: {numberOfMinutesSinceDesktopRotate}, is rotating: {settings.IsDesktopRotating}");
                 }
 
-                int numberOfMinutesSinceLockScreenRotate = (DateTime.Now - settings.LockScreenLastRotatedTime).Minutes;
+                int numberOfMinutesSinceLockScreenRotate = (int)(DateTime.Now - settings.LockScreenLastRotatedTime).TotalMinutes;
                 if (numberOfMinutesSinceLockScreenRotate > settings.LockScreenAutoRotateMinutes && settings.IsLockScreenRotating)
                 {
                     Utilities.LogData("Changing lock screen wallpaper");
                     Random random = new Random();
-                    int index = random.Next(settings.AvailableImages.Count - 1);
-
-                    if (index < 0)
-                    {
-                        index = 0;
-                    }
+                    int index = random.Next(settings.AvailableImages.Count);
 
                     while (settings.CurrentLockScreenImage == settings.AvailableImages[index])
                     {
                         index = random.Next(settings.AvailableImages.Count);
                     }
 
-                    Utilities.SetLockScreenBackground("images\\" + settings.AvailableImages[index]);
+                    Utilities.SetLockScreenBackground(settings.AvailableImages[index]);
                     settings.CurrentLockScreenImage = settings.AvailableImages[index];
                     settings.LockScreenLastRotatedTime = DateTime.Now;
-                    Utilities.LogData("Done changing lock screen wallpaper");
+                    Utilities.LogData($"Changed lock screen wallpaper to {settings.AvailableImages[index]}");
                 }
                 else
                 {
-                    Utilities.LogData("Not changing lock screen wallpaper");
+                    Utilities.LogData($"Not changing lock screen wallpaper - minute difference: {numberOfMinutesSinceLockScreenRotate}, is rotating: {settings.IsLockScreenRotating}");
                 }
 
                 Utilities.WriteSettingsToDisk(settings);
