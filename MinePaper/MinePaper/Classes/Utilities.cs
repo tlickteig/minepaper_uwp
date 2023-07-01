@@ -120,13 +120,21 @@ namespace MinePaper.Classes
                     settings.AvailableImages = tempLocalFileList;
 
                     //Download any missing images
+                    Random random = new Random();
+                    int imagesToDownload = random.Next(Constants.MIN_IMAGES_TO_DOWNLOAD, Constants.MAX_IMAGES_TO_DOWNLOAD);
+                    int imagesDownloaded = 0;
+
                     foreach (string filename in serverFileList)
                     {
+                        if (imagesDownloaded > imagesToDownload)
+                        {
+                            break;
+                        }
+
                         if (!settings.AvailableImages.Contains(filename))
                         {
                             int tries = 0;
-                            int imagesDownloaded = 0;
-                            while (imagesDownloaded < 50)
+                            while (tries < 3)
                             {
                                 try
                                 {
@@ -142,13 +150,14 @@ namespace MinePaper.Classes
                                         tempLocalFileList.Remove(filename);
                                         break;
                                     }
-                                    else if (tries < 3)
+                                    else if (tries < 2)
                                     {
                                         tries++;
                                     }
                                     else
                                     {
-                                        throw e;
+                                        tries++;
+                                        LogError(e);
                                     }
                                 }
                             }

@@ -111,7 +111,12 @@ namespace MinePaper
                 {
                     Utilities.LogData("Changing desktop wallpaper");
                     Random random = new Random();
-                    int index = random.Next(settings.AvailableImages.Count);
+                    int index = random.Next(settings.AvailableImages.Count - 1);
+
+                    if (index < 0)
+                    {
+                        index = 0;
+                    }
 
                     while (settings.CurrentDesktopImage == settings.AvailableImages[index])
                     {
@@ -133,7 +138,12 @@ namespace MinePaper
                 {
                     Utilities.LogData("Changing lock screen wallpaper");
                     Random random = new Random();
-                    int index = random.Next(settings.AvailableImages.Count);
+                    int index = random.Next(settings.AvailableImages.Count - 1);
+
+                    if (index < 0)
+                    {
+                        index = 0;
+                    }
 
                     while (settings.CurrentLockScreenImage == settings.AvailableImages[index])
                     {

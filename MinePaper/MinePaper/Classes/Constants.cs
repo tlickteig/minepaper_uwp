@@ -13,5 +13,9 @@ namespace MinePaper.Classes
         public const string REMOTE_IMAGE_LIST_ENDPOINT = "https://minepaper.net/api/allImages.php";
 
         public const string CONFIG_FILE_NAME = "config.json";
+
+        public const int MIN_IMAGES_TO_DOWNLOAD = 50;
+
+        public const int MAX_IMAGES_TO_DOWNLOAD = 100;
     }
 }
