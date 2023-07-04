@@ -29,8 +29,6 @@
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Spacing="0" x:Name="stkDownloadingDesktopImages" HorizontalAlignment="Center">
-                        <ProgressRing x:Name="prgDesktopImagesLoading" IsActive="True" HorizontalAlignment="Center" Width="50" Height="50"/>
-                        <TextBlock Foreground="Gray" HorizontalAlignment="Center" FontSize="15">Downloading some images. Just hang on a minute</TextBlock>
                     </StackPanel>
                     <StackPanel x:Name="stkDesktopManualSection" Spacing="10" Margin="0, 10, 0, 0" Orientation="Horizontal">
                         <ListView x:Name="lstDesktopWallpaperList" Width="200" Height="100" HorizontalAlignment="Left" SelectionChanged="lstDesktopWallpaperList_SelectionChanged">
@@ -64,8 +62,6 @@
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Spacing="0" x:Name="stkDownloadingLockScreenImages" HorizontalAlignment="Center">
-                        <ProgressRing x:Name="prgLockScreenImagesLoading" IsActive="True" HorizontalAlignment="Center" Width="50" Height="50"/>
-                        <TextBlock Foreground="Gray" HorizontalAlignment="Center" FontSize="15">Downloading some images. Just hang on a minute</TextBlock>
                     </StackPanel>
                     <StackPanel x:Name="stkLockScreenManualSection" Spacing="10" Margin="0, 10, 0, 0" Orientation="Horizontal">
                         <ListView x:Name="lstLockScreenWallpaperList" Width="200" Height="100" HorizontalAlignment="Left" SelectionChanged="lstLockScreenWallpaperList_SelectionChanged">

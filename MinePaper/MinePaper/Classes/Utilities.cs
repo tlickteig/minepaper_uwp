@@ -13,9 +13,26 @@ using Windows.Foundation.Diagnostics;
 using Windows.UI.Xaml.Controls;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Activation;
+using Microsoft.Toolkit.Uwp.UI.Controls;
+using Windows.UI.Xaml;
+using Windows.UI.Core;
+using Windows.ApplicationModel.Core;
 
 namespace MinePaper.Classes
 {
+    public class WebClient : System.Net.WebClient
+    {
+        public int Timeout { get; set; }
+
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            WebRequest lWebRequest = base.GetWebRequest(uri);
+            lWebRequest.Timeout = Timeout;
+            ((HttpWebRequest)lWebRequest).ReadWriteTimeout = Timeout;
+            return lWebRequest;
+        }
+    }
+
     public class Utilities
     {
         public static async void SetDesktopBackground(string filename)
@@ -101,7 +118,7 @@ namespace MinePaper.Classes
             return output;
         }
 
-        public static async Task SyncImagesWithServer(Action OnCompleted = null)
+        public static async Task SyncImagesWithServer(Action OnCompleted = null, RadialProgressBar desktopProgressRing = null, RadialProgressBar lockScreenProgressRing = null)
         {
             try
             {
@@ -133,6 +150,26 @@ namespace MinePaper.Classes
                     int imagesToDownload = random.Next(Constants.MIN_IMAGES_TO_DOWNLOAD, Constants.MAX_IMAGES_TO_DOWNLOAD);
                     int imagesDownloaded = 0;
 
+                    if (desktopProgressRing != null)
+                    {
+                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
+                            () =>
+                            {
+                                desktopProgressRing.Minimum = 0;
+                                desktopProgressRing.Maximum = imagesToDownload;
+                            });
+                    }
+
+                    if (lockScreenProgressRing != null)
+                    {
+                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
+                            () =>
+                            {
+                                lockScreenProgressRing.Minimum = 0;
+                                lockScreenProgressRing.Maximum = imagesToDownload;
+                            });
+                    }
+
                     foreach (string filename in serverFileList)
                     {
                         if (imagesDownloaded > imagesToDownload)
@@ -150,6 +187,25 @@ namespace MinePaper.Classes
                                     DownloadImageFromServer(filename);
                                     tempLocalFileList.Add(filename);
                                     imagesDownloaded++;
+
+                                    if (desktopProgressRing != null)
+                                    {
+                                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
+                                        () =>
+                                        {
+                                            desktopProgressRing.Value = imagesDownloaded;
+                                        });
+                                    }
+
+                                    if (lockScreenProgressRing != null)
+                                    {
+                                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
+                                        () =>
+                                        {
+                                            lockScreenProgressRing.Value = imagesDownloaded;
+                                        });
+                                    }
+
                                     break;
                                 }
                                 catch (WebException e)
@@ -180,7 +236,11 @@ namespace MinePaper.Classes
 
                 if (OnCompleted != null)
                 {
-                    OnCompleted();
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
+                    () =>
+                    {
+                        OnCompleted();
+                    });
                 }
             }
             catch (Exception ex)
@@ -210,6 +270,7 @@ namespace MinePaper.Classes
                 string directory = ApplicationData.Current.LocalFolder.Path + "/images/" + filename;
                 using (WebClient client = new WebClient())
                 {
+                    client.Timeout = 10000;
                     client.DownloadFile(new Uri(uri), directory);
                 }
             }
@@ -250,6 +311,8 @@ namespace MinePaper.Classes
                 serializerSettings.MissingMemberHandling = MissingMemberHandling.Ignore;
 
                 HttpClient client = new HttpClient();
+                client.Timeout = new TimeSpan(0, 0, 5);
+
                 string response = await client.GetStringAsync(Constants.REMOTE_IMAGE_LIST_ENDPOINT);
                 Dictionary<string, List<string>> jsonResponse = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(response, serializerSettings);
                 List<string> result = new List<string>();

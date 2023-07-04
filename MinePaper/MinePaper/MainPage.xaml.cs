@@ -12,6 +12,10 @@ using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Popups;
 using System.Threading.Tasks;
+using Microsoft.Toolkit.Uwp.UI.Controls;
+using System.Drawing;
+using Windows.UI;
+using Windows.UI.Xaml.Navigation;
 
 namespace MinePaper
 {
@@ -106,16 +110,62 @@ namespace MinePaper
             { 
                 // Eat the exception because it can happen if there is a bad value in the settings file
             }
+        }
 
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
             try
             {
+                var desktopProgressRing = new RadialProgressBar()
+                {
+                    IsIndeterminate = false,
+                    Minimum = 0,
+                    Maximum = 100,
+                    Value = 0,
+                    Height = 50,
+                    Width = 50
+                };
+
+                var desktopTextBlock = new TextBlock
+                {
+                    Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 128, 128, 128)),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    FontSize = 15,
+                    Text = "Downloading some images. Just hang on a minute"
+                };
+
+                var lockScreenProgressRing = new RadialProgressBar()
+                {
+                    IsIndeterminate = false,
+                    Minimum = 0,
+                    Maximum = 100,
+                    Value = 0,
+                    Height = 50,
+                    Width = 50
+                };
+
+                var lockScreenTextBlock = new TextBlock
+                {
+                    Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 128, 128, 128)),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    FontSize = 15,
+                    Text = "Downloading some images. Just hang on a minute"
+                };
+
+                stkDownloadingDesktopImages.Children.Add(desktopProgressRing);
+                stkDownloadingDesktopImages.Children.Add(desktopTextBlock);
+
+                stkDownloadingLockScreenImages.Children.Add(lockScreenProgressRing);
+                stkDownloadingLockScreenImages.Children.Add(lockScreenTextBlock);
+
                 stkDownloadingDesktopImages.Visibility = Visibility.Visible;
                 stkDesktopImageSelection.Visibility = Visibility.Collapsed;
 
                 stkDownloadingLockScreenImages.Visibility = Visibility.Visible;
                 stkLockScreenImageSelection.Visibility = Visibility.Collapsed;
 
-                Utilities.SyncImagesWithServer(delegate
+                await Task.Run(() => Utilities.SyncImagesWithServer(delegate
                 {
                     RefreshImageList();
 
@@ -124,9 +174,9 @@ namespace MinePaper
 
                     stkDownloadingLockScreenImages.Visibility = Visibility.Collapsed;
                     stkLockScreenImageSelection.Visibility = Visibility.Visible;
-                });
+                }, desktopProgressRing, lockScreenProgressRing));
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 stkDownloadingDesktopImages.Visibility = Visibility.Collapsed;
                 stkDesktopImageSelection.Visibility = Visibility.Collapsed;
