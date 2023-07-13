@@ -5,17 +5,13 @@ using Windows.System.UserProfile;
 using Windows.Storage;
 using MinePaper.Classes;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 using System.Linq;
 using Windows.UI.Xaml.Media;
-using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Popups;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.Uwp.UI.Controls;
-using System.Drawing;
-using Windows.UI;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.ViewManagement;
 
 namespace MinePaper
 {
@@ -242,6 +238,7 @@ namespace MinePaper
                 try
                 {
                     Utilities.SetDesktopBackground(option.ImageName);
+                    ShowDesktopNotification("Desktop wallpaper set");
                 }
                 catch (Exception ex)
                 {
@@ -294,10 +291,12 @@ namespace MinePaper
                 try
                 {
                     Utilities.SetLockScreenBackground(option.ImageName);
+                    ShowDesktopNotification("Lock screen wallpaper set");
                 }
                 catch (Exception ex)
                 {
                     Utilities.LogError(ex);
+                    Utilities.ShowSimpleErrorDialogAsync("An error occurred setting the lock screen wallpaper");
                 }
             }
             else
@@ -364,6 +363,15 @@ namespace MinePaper
                 lstDesktopWallpaperList.Items.Add(image);
                 lstLockScreenWallpaperList.Items.Add(image);
             }
+        }
+
+        private void ShowDesktopNotification(string message, int durationSeconds = 5, int width = 300)
+        {
+            anoNotificationWindow.ShowDismissButton = true;
+            anoNotificationWindow.Content = message;
+            anoNotificationWindow.StackMode = StackMode.Replace;
+            anoNotificationWindow.Width = width;
+            anoNotificationWindow.Show(durationSeconds * 1000);
         }
     }
 }

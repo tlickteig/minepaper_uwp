@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MinePaper"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:ui="using:Microsoft.UI.Xaml.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:ui="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     SizeChanged="Page_SizeChanged">
@@ -71,7 +71,7 @@
                                     <StackPanel Orientation="Horizontal" Height="40" Spacing="10">
                                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left">Rotate background every:</TextBlock>
                                         <ComboBox ItemsSource="{x:Bind _rotateOptions}" SelectionChanged="cboLockScreenRotateFrequency_SelectionChanged" 
-                                x:Name="cboLockScreenRotateFrequency" VerticalAlignment="Center"></ComboBox>
+                                            x:Name="cboLockScreenRotateFrequency" VerticalAlignment="Center"></ComboBox>
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
@@ -86,5 +86,6 @@
                 </StackPanel>
             </StackPanel>
         </NavigationView>
+        <ui:InAppNotification x:Name="anoNotificationWindow"></ui:InAppNotification>
     </Grid>
 </Page>
