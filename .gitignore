@@ -1,0 +1,7 @@
+
+MinePaper/MinePaper/bin/*
+MinePaper/MinePaper/obj/*
+.idea/*
+MinePaper/.vs/*
+MinePaper/MinePaper/AppPackages/*
+MinePaper/MinePaper/BundleArtifacts/*
