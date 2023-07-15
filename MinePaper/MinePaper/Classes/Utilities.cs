@@ -14,6 +14,7 @@ using Microsoft.Toolkit.Uwp.UI.Controls;
 using Windows.UI.Core;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Notifications;
+using Windows.UI.Xaml;
 
 namespace MinePaper.Classes
 {
@@ -124,28 +125,34 @@ namespace MinePaper.Classes
                     Directory.CreateDirectory(ApplicationData.Current.LocalFolder.Path + "/images/");
                 }
 
+                Random random = new Random();
                 Settings settings = ReadSettingsFromDisk();
                 settings.AvailableImages = ScanImagesDirectory();
                 List<string> serverFileList = await GetImageListFromServer();
 
                 if (serverFileList?.Count > 0)
                 {
-                    // Remove images that no longer exist on the server
                     List<string> tempLocalFileList = settings.AvailableImages.ToList();
                     foreach (string filename in settings.AvailableImages)
                     {
                         if (!serverFileList.Contains(filename))
                         {
                             DeleteImageFromDisk(filename);
-                            tempLocalFileList.Remove(filename);
                         }
                     }
-                    settings.AvailableImages = tempLocalFileList;
+                    settings.AvailableImages = ScanImagesDirectory();
 
-                    //Download any missing images
-                    Random random = new Random();
-                    int imagesToDownload = random.Next(Constants.MIN_IMAGES_TO_DOWNLOAD, Constants.MAX_IMAGES_TO_DOWNLOAD);
+                    while (settings.AvailableImages.Count > Constants.MAX_IMAGES)
+                    {
+                        string imageToDelete = settings.AvailableImages[random.Next(settings.AvailableImages.Count)];
+                        DeleteImageFromDisk(imageToDelete);
+                        settings.AvailableImages.Remove(imageToDelete);
+                    }
+                    settings.AvailableImages = ScanImagesDirectory();
+
+                    int numImagesToDownload = random.Next(Constants.MIN_IMAGES_TO_DOWNLOAD, Constants.MAX_IMAGES_TO_DOWNLOAD);
                     int imagesDownloaded = 0;
+                    int tries = 0;
 
                     if (desktopProgressRing != null)
                     {
@@ -153,7 +160,7 @@ namespace MinePaper.Classes
                             () =>
                             {
                                 desktopProgressRing.Minimum = 0;
-                                desktopProgressRing.Maximum = imagesToDownload;
+                                desktopProgressRing.Maximum = numImagesToDownload;
                             });
                     }
 
@@ -163,64 +170,68 @@ namespace MinePaper.Classes
                             () =>
                             {
                                 lockScreenProgressRing.Minimum = 0;
-                                lockScreenProgressRing.Maximum = imagesToDownload;
+                                lockScreenProgressRing.Maximum = numImagesToDownload;
                             });
                     }
 
-                    foreach (string filename in serverFileList)
+                    for (int maxLoops = 0; maxLoops < 1_000_000 && imagesDownloaded < numImagesToDownload; maxLoops++)
                     {
-                        if (imagesDownloaded > imagesToDownload)
+                        string imageToDownload = serverFileList[random.Next(serverFileList.Count)];
+                        if (!settings.AvailableImages.Contains(imageToDownload))
                         {
-                            break;
-                        }
-
-                        if (!settings.AvailableImages.Contains(filename))
-                        {
-                            int tries = 0;
-                            while (tries < 3)
+                            if (settings.AvailableImages.Count >= Constants.MAX_IMAGES)
                             {
-                                try
+                                string imageToRemove = settings.AvailableImages[random.Next(settings.AvailableImages.Count)];
+                                DeleteImageFromDisk(imageToRemove);
+                                settings.AvailableImages.Remove(imageToRemove);
+                            }
+
+                            try
+                            {
+                                DownloadImageFromServer(imageToDownload);
+                                settings.AvailableImages.Add(imageToDownload);
+                                imagesDownloaded++;
+
+                                if (desktopProgressRing != null)
                                 {
-                                    DownloadImageFromServer(filename);
-                                    tempLocalFileList.Add(filename);
-                                    imagesDownloaded++;
-
-                                    if (desktopProgressRing != null)
+                                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
+                                    () =>
                                     {
-                                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
-                                        () =>
-                                        {
-                                            desktopProgressRing.Value = imagesDownloaded;
-                                        });
-                                    }
-
-                                    if (lockScreenProgressRing != null)
-                                    {
-                                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
-                                        () =>
-                                        {
-                                            lockScreenProgressRing.Value = imagesDownloaded;
-                                        });
-                                    }
-
-                                    break;
+                                        desktopProgressRing.Value = imagesDownloaded;
+                                    });
                                 }
-                                catch (WebException e)
+
+                                if (lockScreenProgressRing != null)
                                 {
-                                    if (e.Message.Contains("404"))
+                                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
+                                    () =>
                                     {
-                                        tempLocalFileList.Remove(filename);
-                                        break;
-                                    }
-                                    else if (tries < 2)
+                                        lockScreenProgressRing.Value = imagesDownloaded;
+                                    });
+                                }
+                            }
+                            catch (WebException ex)
+                            {
+                                LogError(ex);
+                                if (ex.Message.Contains("404"))
+                                {
+                                    if (settings.AvailableImages.Contains(imageToDownload))
                                     {
-                                        tries++;
+                                        settings.AvailableImages.Remove(imageToDownload);
                                     }
-                                    else
+
+                                    if (serverFileList.Contains(imageToDownload))
                                     {
-                                        tries++;
-                                        LogError(e);
+                                        serverFileList.Remove(imageToDownload);
                                     }
+                                }
+                                else if (tries < Constants.MAX_TRIES)
+                                {
+                                    tries++;
+                                }
+                                else
+                                {
+                                    throw ex;
                                 }
                             }
                         }

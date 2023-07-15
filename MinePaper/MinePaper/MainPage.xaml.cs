@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.ViewManagement;
+using System.Net;
 
 namespace MinePaper
 {
@@ -155,36 +156,48 @@ namespace MinePaper
                 stkDownloadingLockScreenImages.Children.Add(lockScreenProgressRing);
                 stkDownloadingLockScreenImages.Children.Add(lockScreenTextBlock);
 
-                stkDownloadingDesktopImages.Visibility = Visibility.Visible;
-                stkDesktopImageSelection.Visibility = Visibility.Collapsed;
-
-                stkDownloadingLockScreenImages.Visibility = Visibility.Visible;
-                stkLockScreenImageSelection.Visibility = Visibility.Collapsed;
-
+                ShowLoading();
                 await Task.Run(() => Utilities.SyncImagesWithServer(delegate
                 {
                     RefreshImageList();
-
-                    stkDownloadingDesktopImages.Visibility = Visibility.Collapsed;
-                    stkDesktopImageSelection.Visibility = Visibility.Visible;
-
-                    stkDownloadingLockScreenImages.Visibility = Visibility.Collapsed;
-                    stkLockScreenImageSelection.Visibility = Visibility.Visible;
+                    HideLoading();
                 }, desktopProgressRing, lockScreenProgressRing));
+            }
+            catch (WebException ex)
+            {
+                try
+                {
+                    RefreshImageList();
+                    Utilities.ShowSimpleErrorDialogAsync("A network error has occurred. Some images may not be available");
+                    if (lstDesktopWallpaperList.Items.Count > 0 && lstLockScreenWallpaperList.Items.Count > 0)
+                    {
+                        HideLoading();
+                    }
+                    else
+                    {
+                        HideUIElements();
+                    }
+                }
+                catch (Exception ex2)
+                {
+                    HideUIElements();
+                    Utilities.LogError(ex2);
+                    Utilities.ShowSimpleErrorDialogAsync();
+                }
+                finally
+                {
+                    Utilities.LogError(ex);
+                }
             }
             catch (Exception ex)
             {
-                stkDownloadingDesktopImages.Visibility = Visibility.Collapsed;
-                stkDesktopImageSelection.Visibility = Visibility.Collapsed;
-
-                stkDownloadingLockScreenImages.Visibility = Visibility.Collapsed;
-                stkLockScreenImageSelection.Visibility = Visibility.Collapsed;
-
+                HideUIElements();
                 Utilities.LogError(ex);
                 Utilities.ShowSimpleErrorDialogAsync();
             }
         }
 
+        #region Page event handlers
         private void vwMainNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
             if (sender.SelectedItem == vwiLockScreenItem)
@@ -198,6 +211,33 @@ namespace MinePaper
                 stkLockScreenSection.Visibility = Visibility.Collapsed;
             }
         }
+
+        private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            double height = ((Frame)Window.Current.Content).ActualHeight - 150;
+            double width = ((Frame)Window.Current.Content).ActualWidth - 150;
+
+            lstDesktopWallpaperList.Height = height;
+            lstLockScreenWallpaperList.Height = height;
+
+            double imageFrameWidth = width - 100;
+            double imageFrameHeight = height - 50;
+            if (height > (width * 9.0 / 16.0))
+            {
+                imageFrameHeight = width * (9.0 / 16.0) - 100;
+            }
+            else if ((width * 9.0 / 16.0) > height)
+            {
+                imageFrameWidth = height * (16.0 / 9.0) - 50;
+            }
+
+            frmMainImage.Height = imageFrameHeight;
+            frmMainImage.Width = imageFrameWidth;
+
+            frmLockScreenImage.Height = imageFrameHeight;
+            frmLockScreenImage.Width = imageFrameWidth;
+        }
+        #endregion
 
         #region Desktop event handlers
         private void tglDesktopAutoRotate_Toggled(object sender, RoutedEventArgs e)
@@ -306,32 +346,7 @@ namespace MinePaper
         }
         #endregion
 
-        private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            double height = ((Frame)Window.Current.Content).ActualHeight - 150;
-            double width = ((Frame)Window.Current.Content).ActualWidth - 150;
-
-            lstDesktopWallpaperList.Height = height;
-            lstLockScreenWallpaperList.Height = height;
-
-            double imageFrameWidth = width - 100;
-            double imageFrameHeight = height - 50;
-            if (height > (width * 9.0 / 16.0))
-            {
-                imageFrameHeight = width * (9.0 / 16.0) - 100;
-            }
-            else if ((width * 9.0 / 16.0) > height)
-            {
-                imageFrameWidth = height * (16.0 / 9.0) - 50;
-            }
-
-            frmMainImage.Height = imageFrameHeight;
-            frmMainImage.Width = imageFrameWidth;
-
-            frmLockScreenImage.Height = imageFrameHeight;
-            frmLockScreenImage.Width = imageFrameWidth;
-        }
-
+        #region UI utility methods
         private void SelectDesktopImage(string filename)
         {
             string fullImagePath = ApplicationData.Current.LocalFolder.Path + "/images/" + filename;
@@ -373,5 +388,33 @@ namespace MinePaper
             anoNotificationWindow.Width = width;
             anoNotificationWindow.Show(durationSeconds * 1000);
         }
+
+        private void HideUIElements()
+        {
+            stkDownloadingDesktopImages.Visibility = Visibility.Collapsed;
+            stkDesktopImageSelection.Visibility = Visibility.Collapsed;
+
+            stkDownloadingLockScreenImages.Visibility = Visibility.Collapsed;
+            stkLockScreenImageSelection.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowLoading()
+        {
+            stkDownloadingDesktopImages.Visibility = Visibility.Visible;
+            stkDesktopImageSelection.Visibility = Visibility.Collapsed;
+
+            stkDownloadingLockScreenImages.Visibility = Visibility.Visible;
+            stkLockScreenImageSelection.Visibility = Visibility.Collapsed;
+        }
+
+        private void HideLoading() 
+        {
+            stkDownloadingDesktopImages.Visibility = Visibility.Collapsed;
+            stkDesktopImageSelection.Visibility = Visibility.Visible;
+
+            stkDownloadingLockScreenImages.Visibility = Visibility.Collapsed;
+            stkLockScreenImageSelection.Visibility = Visibility.Visible;
+        }
+        #endregion
     }
 }
