@@ -8,9 +8,9 @@ namespace MinePaper.Classes
 {
     public class Constants
     {
-        public const string REMOTE_IMAGES_FOLDER = "https://minepaper.net/wallpapers";
+        public const string REMOTE_IMAGES_FOLDER = "https://cdn.minepaper.net";
 
-        public const string REMOTE_IMAGE_LIST_ENDPOINT = "https://minepaper.net/api/allImages.php";
+        public const string REMOTE_IMAGE_LIST_ENDPOINT = "https://cdn.minepaper.net/allFiles.json";
 
         public const string CONFIG_FILE_NAME = "config.json";
 
